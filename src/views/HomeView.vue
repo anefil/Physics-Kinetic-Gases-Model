@@ -1,9 +1,10 @@
 <script setup>
-import TheWelcome from '../components/TheWelcome.vue'
+import TestComponent from '../components/TestComponent.vue'
 </script>
 
 <template>
   <main>
-    <TheWelcome />
+    Это главная страница
   </main>
+  <TestComponent />
 </template>
