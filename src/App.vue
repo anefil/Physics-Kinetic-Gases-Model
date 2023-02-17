@@ -1,16 +1,12 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
+import HeaderComponent from "@/components/HeaderComponent.vue";
 </script>
 
 <template>
 <!--  Это лейаут, компонент RouterView это "окно" со всеми страницами-->
 <!--  Тут есть хедер, он будет отображаться на всех страницах-->
-  <header>
-    хедер
-    <router-link to="/">Main page</router-link>
-    <br>
-    <router-link to="/about">About</router-link>
-  </header>
+  <HeaderComponent />
 
   <RouterView />
 </template>

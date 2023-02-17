@@ -1,0 +1,122 @@
+/* Styles imported from https://github.com/WindPl/physics-STO/blob/main/src/style.css */
+
+:root {
+  --accent-primary: rgb(211, 59, 241);
+  --accent-secondary: rgb(241, 214, 59);
+  --img-headcover: url("../res/headcover.jpg");
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  margin: 0;
+}
+
+#main {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+}
+
+h2 {
+  font-size: 2.2rem;
+}
+
+h3 {
+  font-size: 1.6rem;
+}
+
+h4 {
+  font-size: 1.4rem;
+}
+
+h5 {
+  font-size: 1.2rem;
+}
+
+p {
+  line-height: 1.2rem;
+}
+
+.animation > canvas {
+  width: auto;
+  height: 100%;
+  padding: 5px;
+  border: 2px solid black;
+  box-sizing: border-box;
+}
+
+.animation {
+  height: 25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.foldable {
+  border: 2px solid black;
+  padding: 0.5rem 2rem;
+  margin: 2rem 0;
+  box-shadow: 4px 4px 0 0 var(--accent-primary);
+  box-sizing: border-box;
+}
+
+.foldable > *:first-child {
+  margin: 0;
+  padding: 1.5rem 0;
+}
+
+
+.foldable > *:last-child {
+  /* max-height: 10000px; */
+  height: auto;
+  overflow: hidden;
+  transition: height 2s ease-in-out;
+}
+
+.foldable.folded > *:last-child {
+  height: 0;
+}
+
+.foldable:not(.folded) > *:first-child:before {
+  content: "⯆";
+  margin-right: 1rem;
+}
+
+.foldable.folded > *:first-child:before {
+  content: "⯈";
+  margin-right: 1rem;
+}
+
+.katex-html {
+  display: none;
+}
+
+span.mathblock {
+  font-size: 1.15rem;
+}
+
+div.mathblock {
+  font-size: 1.5rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+div.mathblock.mathblock-accent {
+  font-size: 2rem;
+}
+
+.highlight {
+  border-bottom: 3px solid var(--accent-primary);
+}
+
+button, a {
+  background-color: var(--accent-primary);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
