@@ -1,12 +1,12 @@
 <script setup>
   import { ref, onMounted } from 'vue'
-  import Multithread from '../assets/lib/multithread';
+
   
 
   const simulation = ref(null)
 
 
-  let MT = new Multithread(4);
+
 
   onMounted(() => {
     const canvas = document.querySelector('canvas')
@@ -96,7 +96,7 @@
 
       { // 3.
         for(let zz = 0; zz < subiter; zz++ )
-        // MT.process((particles,cells,radius,velocity) => {
+        
           for(let i = 0; i < cells.length; i++) {
             for(let j = 0; j < cells[i].length; j++) {
               for(let mainCellI = 0; mainCellI < cells[i][j].length; mainCellI++) {
@@ -130,10 +130,6 @@
               }
             }
           }
-        //   return particles
-        // }, (rt) => {
-        //   particles = rt;
-        // })(particles,cells,radius,velocity);
       }
     }
 
