@@ -375,6 +375,7 @@ fn clean() {
     } 
 }
 
+#[wasm_bindgen]
 pub fn set_borders(left: f64, right: f64, top: f64, bottom: f64) {
     let mut m = MAIN.lock().unwrap();
     m.borders = (left,top,right-left,bottom-top);

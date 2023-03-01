@@ -224,6 +224,16 @@ export function rs_next_step(subiter, timestep) {
     wasm.rs_next_step(subiter, timestep);
 }
 
+/**
+* @param {number} left
+* @param {number} right
+* @param {number} top
+* @param {number} bottom
+*/
+export function set_borders(left, right, top, bottom) {
+    wasm.set_borders(left, right, top, bottom);
+}
+
 function handleError(f, args) {
     try {
         return f.apply(this, args);

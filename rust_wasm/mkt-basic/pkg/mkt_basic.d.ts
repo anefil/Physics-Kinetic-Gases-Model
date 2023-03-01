@@ -18,3 +18,10 @@ export function rs_add_particles(particle_num: number, median_velocity: number, 
 * @param {number} timestep
 */
 export function rs_next_step(subiter: number, timestep: number): void;
+/**
+* @param {number} left
+* @param {number} right
+* @param {number} top
+* @param {number} bottom
+*/
+export function set_borders(left: number, right: number, top: number, bottom: number): void;
