@@ -1,8 +1,13 @@
 import * as wasm from '../../rust_wasm/mkt-basic/pkg/main';
 
 export function jsMedianVelocitySq  (v) { 
-  v = v.map(a=>a-16); // почему? самому бы знать
+  v[0] = v[0]-16; // почему? самому бы знать
   // console.log(v); 
+  let pressure = 0;
+  for (let i = 0; i < v.length; i++) {
+    pressure += 1/3 * moleculeTypeArr[i][1] * moleculeTypeArr[i][0] / 400 * v[i]; // 400=Volume
+  }
+  console.log(pressure);
 }
 
 export function jsPathPointAndDraw (x,y, ctx) {

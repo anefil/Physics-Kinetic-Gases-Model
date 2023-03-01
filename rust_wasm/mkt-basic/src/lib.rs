@@ -328,10 +328,10 @@ fn draw() {
                 next_index += p.types[v_index].0;
             }
         }
-        // console_log!("{:#?}", v_squared);
         v_squared[v_index] += particle.velocity.0.powi(2)+particle.velocity.1.powi(2);
         
     }
+    // console_log!("{:#?}", v_squared);
     
     js_median_velocity_sq(v_squared);
 

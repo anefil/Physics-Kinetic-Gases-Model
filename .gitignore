@@ -28,3 +28,4 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+rust_wasm/mkt-basic/target

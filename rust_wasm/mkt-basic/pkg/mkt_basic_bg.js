@@ -242,10 +242,6 @@ export function __wbindgen_object_drop_ref(arg0) {
     takeObject(arg0);
 };
 
-export function __wbg_log_0141715afdd1516c(arg0, arg1) {
-    console.log(getStringFromWasm0(arg0, arg1));
-};
-
 export function __wbg_jsMedianVelocitySq_5692b8e830bbfbbd(arg0, arg1) {
     var v0 = getArrayF64FromWasm0(arg0, arg1).slice();
     wasm.__wbindgen_free(arg0, arg1 * 8);
