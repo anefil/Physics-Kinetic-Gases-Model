@@ -42,7 +42,7 @@ static mut WATCHING_INDEX: Option<usize> = None;
 
 // static TIMESTEP: f64 = 0.05;
 
-static CELL_SIZE: f64 = 3.;
+static CELL_SIZE: f64 = 4.;
 
 lazy_static! {
     static ref PARTICLES: Mutex<Particles> = {
@@ -63,11 +63,12 @@ lazy_static! {
         }
         let canvas = canvas.unwrap();
         let canvas = canvas.dyn_into::<web_sys::HtmlCanvasElement>().map_err(|_| ()).unwrap();
+        let (w,h) = (canvas.width(),canvas.height());
 
         let context = canvas.get_context("2d").unwrap().unwrap().dyn_into::<web_sys::CanvasRenderingContext2d>().unwrap();
 
-        let s1 = (canvas.width() as f64/CELL_SIZE).ceil() as usize;
-        let s2 = (canvas.height() as f64/CELL_SIZE).ceil() as usize;
+        let s1 = (w as f64/CELL_SIZE).ceil() as usize;
+        let s2 = (h as f64/CELL_SIZE).ceil() as usize;
 
         // console_log!("Initialized MAIN with such size ({},{})", s1, s2);
         
@@ -75,7 +76,8 @@ lazy_static! {
             canvas,
             context,
             cells: vec![vec![vec![];s1];s2],
-            size: (s1, s2)
+            cell_size: (s1, s2),
+            borders: (0.,0.,w as f64,h as f64)
         })
     };
 }
@@ -103,7 +105,8 @@ struct Main {
     canvas: HtmlCanvasElement,
     context: CanvasRenderingContext2d,
     cells: Vec<Vec<Vec<CellParticle>>>,
-    size: (usize,usize)
+    cell_size: (usize,usize),
+    borders: (f64,f64,f64,f64)
 }
 
 unsafe impl Sync for Main {}
@@ -151,8 +154,8 @@ pub fn rs_add_particles(particle_num: usize, median_velocity: f64, mass: f64, co
 
 
         p.particles[i+len] = Particle {
-            position: (seed1*(m.canvas.width() as f64-2.*radius)+radius,
-                        seed2*(m.canvas.height() as f64-2.*radius)+radius),
+            position: (seed1*(0.8*m.canvas.width() as f64-2.*radius)+radius+(0.1*m.canvas.width() as f64),
+                        seed2*(0.8*m.canvas.height() as f64-2.*radius)+radius+(0.1*m.canvas.height() as f64)),
             // position: (10.,10.),
             velocity: (median_velocity*seed3.cos(), median_velocity*seed3.sin()),
             // velocity: (0.,0.),
@@ -202,25 +205,34 @@ fn update(timestep: f64) {
         let mut p = PARTICLES.lock().unwrap();
 
         
-        for i in 0..m.size.1 {
-            for j in 0..m.size.0 {
+        for i in 0..m.cell_size.1 {
+            for j in 0..m.cell_size.0 {
                 for index in 0..m.cells[i][j].len() {
                     let cp_main_particle_id = m.cells[i][j][index];
                     if let CellParticle::Full(main_particle_id) =  cp_main_particle_id {
                             let dx = p.particles[main_particle_id].velocity.0*timestep;
                             let dy = p.particles[main_particle_id].velocity.1*timestep;
 
-                            if p.particles[main_particle_id].position.0+dx<p.particles[main_particle_id].radius || p.particles[main_particle_id].position.0+dx+p.particles[main_particle_id].radius>m.canvas.width() as f64 - 1. {
+                            let position_x = p.particles[main_particle_id].position.0.clone() + dx;
+                            let position_y = p.particles[main_particle_id].position.1.clone() + dy;
+
+                            let left_border = p.particles[main_particle_id].radius.clone()+m.borders.0;
+                            let right_border = m.borders.2 - p.particles[main_particle_id].radius.clone() - 1.;
+
+                            let top_border = p.particles[main_particle_id].radius.clone()+m.borders.1;
+                            let bottom_border = m.borders.3 - p.particles[main_particle_id].radius.clone() - 1.;
+
+                            if position_x < left_border || position_x > right_border {
                                 let nx = 
-                                if p.particles[main_particle_id].position.0+dx < p.particles[main_particle_id].radius { p.particles[main_particle_id].radius } else { m.canvas.width() as f64 -1. - p.particles[main_particle_id].radius };
+                                    if position_x < left_border  { left_border  } else { right_border };
                                 let ny = p.particles[main_particle_id].position.1 + dy * ((nx-p.particles[main_particle_id].position.0)/dx).abs();
                                 p.particles[main_particle_id].position.0 = nx;
                                 p.particles[main_particle_id].position.1 = ny;
                                 p.particles[main_particle_id].velocity.0 *= -1.;
-                            } else if p.particles[main_particle_id].position.1+dy<p.particles[main_particle_id].radius || p.particles[main_particle_id].position.1+dy+p.particles[main_particle_id].radius>m.canvas.height() as f64 -1. {
+                            } else if position_y < top_border || position_y > bottom_border {
                                 // console_log!("xxxxx {}+{}, {}", particle.position.1, dy, m.canvas.height()-1);
                                 let ny = 
-                                    if p.particles[main_particle_id].position.1+dy < p.particles[main_particle_id].radius { p.particles[main_particle_id].radius } else { m.canvas.height() as f64 -1. - p.particles[main_particle_id].radius };
+                                    if position_y < top_border { top_border } else { bottom_border };
                                 let nx = p.particles[main_particle_id].position.0 + dx * ((ny-p.particles[main_particle_id].position.1)/dy).abs();
                                 p.particles[main_particle_id].position.0 = nx;
                                 p.particles[main_particle_id].position.1 = ny;
@@ -247,43 +259,44 @@ fn update(timestep: f64) {
 
                             for di in 0..=2 {
                                 for dj in 0..=2 {
-                                    if (di!=0 && dj!=0) && i+(di as usize)>1 && i+di<m.size.1+1 && j+dj>1 && j+dj < m.size.0+1  {
-                                        for second_index in 0..m.cells[i+di-1][j+dj-1].len()  {
-                                            let cp_second_particle_id = m.cells[i+di-1][j+dj-1][second_index];
-                                            if let CellParticle::Full(second_particle_id) = cp_second_particle_id {
+                                    if !((di!=0 && dj!=0) && i+(di as usize)>1 && i+di<m.cell_size.1+1 && j+dj>1 && j+dj < m.cell_size.0+1) {
+                                        continue;
+                                    }
+                                    for second_index in 0..m.cells[i+di-1][j+dj-1].len()  {
+                                        let cp_second_particle_id = m.cells[i+di-1][j+dj-1][second_index];
+                                        if let CellParticle::Full(second_particle_id) = cp_second_particle_id {
+
+                                            
+                                            // console_log!("{:?}, {:?}", p.particles[main_particle_id],p.particles[second_particle_id]);
+                                            // console_log!("{:?}", particles);
+                                            let dx = p.particles[second_particle_id].position.0-p.particles[main_particle_id].position.0;
+                                            let dy = p.particles[second_particle_id].position.1-p.particles[main_particle_id].position.1;
+                                            let distance_squared = (dx).powi(2)+(dy).powi(2);
+                                            let double_radius_squared = (p.particles[second_particle_id].radius+p.particles[main_particle_id].radius).powi(2);
+                                            if distance_squared < double_radius_squared {
+                                                let m1 = p.particles[main_particle_id].mass;
+                                                let m2 = p.particles[second_particle_id].mass;
+                                                let (v1x,v1y) = p.particles[main_particle_id].velocity;
+                                                let (v2x,v2y) = p.particles[second_particle_id].velocity;
+                                                
+                                                let nv1x =  (m1-m2)/(m1+m2)*v1x + 2.*m2/(m1+m2)*v2x;
+                                                let nv1y =  (m1-m2)/(m1+m2)*v1y + 2.*m2/(m1+m2)*v2y;
+
+                                                let nv2x =  (m2-m1)/(m1+m2)*v2x + 2.*m1/(m1+m2)*v1x;
+                                                let nv2y =  (m2-m1)/(m1+m2)*v2y + 2.*m1/(m1+m2)*v1y;
+
+                                                p.particles[main_particle_id].velocity = (nv1x,nv1y);
+                                                p.particles[second_particle_id].velocity = (nv2x,nv2y);
+
+                                                let diff = (double_radius_squared.sqrt() - distance_squared.sqrt())/2.;
 
                                                 
-                                                // console_log!("{:?}, {:?}", p.particles[main_particle_id],p.particles[second_particle_id]);
-                                                // console_log!("{:?}", particles);
-                                                let dx = p.particles[second_particle_id].position.0-p.particles[main_particle_id].position.0;
-                                                let dy = p.particles[second_particle_id].position.1-p.particles[main_particle_id].position.1;
-                                                let distance_squared = (dx).powi(2)+(dy).powi(2);
-                                                let double_radius_squared = (p.particles[second_particle_id].radius+p.particles[main_particle_id].radius).powi(2);
-                                                if distance_squared < double_radius_squared {
-                                                    let m1 = p.particles[main_particle_id].mass;
-                                                    let m2 = p.particles[second_particle_id].mass;
-                                                    let (v1x,v1y) = p.particles[main_particle_id].velocity;
-                                                    let (v2x,v2y) = p.particles[second_particle_id].velocity;
-                                                    
-                                                    let nv1x =  (m1-m2)/(m1+m2)*v1x + 2.*m2/(m1+m2)*v2x;
-                                                    let nv1y =  (m1-m2)/(m1+m2)*v1y + 2.*m2/(m1+m2)*v2y;
+                                                if distance_squared!=0. {
+                                                    p.particles[main_particle_id].position.0 -= diff*dx/distance_squared.sqrt();
+                                                    p.particles[main_particle_id].position.1 -= diff*dy/distance_squared.sqrt();
 
-                                                    let nv2x =  (m2-m1)/(m1+m2)*v2x + 2.*m1/(m1+m2)*v1x;
-                                                    let nv2y =  (m2-m1)/(m1+m2)*v2y + 2.*m1/(m1+m2)*v1y;
-
-                                                    p.particles[main_particle_id].velocity = (nv1x,nv1y);
-                                                    p.particles[second_particle_id].velocity = (nv2x,nv2y);
-
-                                                    let diff = (double_radius_squared.sqrt() - distance_squared.sqrt())/2.;
-
-                                                    
-                                                    if distance_squared!=0. {
-                                                        p.particles[main_particle_id].position.0 -= diff*dx/distance_squared.sqrt();
-                                                        p.particles[main_particle_id].position.1 -= diff*dy/distance_squared.sqrt();
-
-                                                        p.particles[second_particle_id].position.0 += diff*dx/distance_squared.sqrt();
-                                                        p.particles[second_particle_id].position.1 += diff*dy/distance_squared.sqrt();
-                                                    }
+                                                    p.particles[second_particle_id].position.0 += diff*dx/distance_squared.sqrt();
+                                                    p.particles[second_particle_id].position.1 += diff*dy/distance_squared.sqrt();
                                                 }
                                             }
                                         }
@@ -360,4 +373,9 @@ fn clean() {
         }
         CLEAN+=1; 
     } 
+}
+
+pub fn set_borders(left: f64, right: f64, top: f64, bottom: f64) {
+    let mut m = MAIN.lock().unwrap();
+    m.borders = (left,top,right-left,bottom-top);
 }
