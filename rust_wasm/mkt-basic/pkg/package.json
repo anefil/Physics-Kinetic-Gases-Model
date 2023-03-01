@@ -1,0 +1,16 @@
+{
+  "name": "mkt-basic",
+  "collaborators": [
+    "eee <proffegor@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "mkt_basic_bg.wasm",
+    "mkt_basic.js",
+    "mkt_basic_bg.js",
+    "mkt_basic.d.ts"
+  ],
+  "module": "mkt_basic.js",
+  "types": "mkt_basic.d.ts",
+  "sideEffects": false
+}
