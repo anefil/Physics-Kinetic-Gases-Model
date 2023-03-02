@@ -11,9 +11,9 @@ export function jsMedianVelocitySq  (v) {
   }
 
   counter++;
-  if(counter%300===0) {
-    console.log((counter/300)*3, pressure)
-    updateChart([[(counter/300)*3], [pressure]]);
+  if(counter%1===0) {
+    console.log((counter/5)*3, pressure)
+    updateChart([[(counter/100)*3], [pressure]]);
   }
 
 
