@@ -21,7 +21,7 @@ export function jsPathPointAndDraw (x,y, ctx) {
 }
 
 export async function addMoleculeType(num, v_avg, mass, color) {
-  await wasm.rs_add_particles(num, v_avg, mass, 0,0,0);
+  await wasm.rs_add_particles(num, v_avg, mass, color[0],color[1],color[2]);
   moleculeTypeArr.push([num,mass]);
 }
 

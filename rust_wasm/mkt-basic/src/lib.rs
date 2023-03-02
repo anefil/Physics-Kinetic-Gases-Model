@@ -42,7 +42,7 @@ static mut WATCHING_INDEX: Option<usize> = None;
 
 // static TIMESTEP: f64 = 0.05;
 
-static CELL_SIZE: f64 = 4.;
+static CELL_SIZE: f64 = 8.;
 
 lazy_static! {
     static ref PARTICLES: Mutex<Particles> = {
@@ -70,7 +70,7 @@ lazy_static! {
         let s1 = (w as f64/CELL_SIZE).ceil() as usize;
         let s2 = (h as f64/CELL_SIZE).ceil() as usize;
 
-        // console_log!("Initialized MAIN with such size ({},{})", s1, s2);
+        
         
         Mutex::new(Main {
             canvas,
@@ -140,7 +140,7 @@ pub fn rs_add_particles(particle_num: usize, median_velocity: f64, mass: f64, co
     let mut m = MAIN.lock().unwrap();
     
     let len = p.particles.len();
-    // console_log!("Init. Old len: {:?}, current len: {:?}", len, particle_num);
+    
     let _ = p.particles.resize_with(len+particle_num, || Particle::default());
     p.types.push((particle_num,mass));
 
@@ -167,13 +167,13 @@ pub fn rs_add_particles(particle_num: usize, median_velocity: f64, mass: f64, co
         let cell_x = (p.particles[i].position.0/CELL_SIZE).floor() as usize;
         let cell_y = (p.particles[i].position.1/CELL_SIZE).floor() as usize;
 
-        // console_log!("New particle at ({},{}) which is in ({},{})", p.particles[i].position.0, p.particles[i].position.1, cell_x, cell_y);
+        
 
 
         m.cells[cell_y][cell_x].push(CellParticle::Full(i+len));
     }   
 
-    // console_log!("{:?}", p.particles);
+    
     
 }
 
@@ -230,7 +230,7 @@ fn update(timestep: f64) {
                                 p.particles[main_particle_id].position.1 = ny;
                                 p.particles[main_particle_id].velocity.0 *= -1.;
                             } else if position_y < top_border || position_y > bottom_border {
-                                // console_log!("xxxxx {}+{}, {}", particle.position.1, dy, m.canvas.height()-1);
+                                
                                 let ny = 
                                     if position_y < top_border { top_border } else { bottom_border };
                                 let nx = p.particles[main_particle_id].position.0 + dx * ((ny-p.particles[main_particle_id].position.1)/dy).abs();
@@ -251,7 +251,7 @@ fn update(timestep: f64) {
                             let cell_y = (p.particles[main_particle_id].position.1/CELL_SIZE).floor() as usize;
 
                             if cell_x != j || cell_y != i {
-                                // console_log!("Moved from {}, {} to {}, {}", j,i,cell_x,cell_y);
+                                
                                 m.cells[i][j][index] = CellParticle::Empty;
                                 m.cells[cell_y][cell_x].push(CellParticle::Full(main_particle_id));
                             }
@@ -267,8 +267,7 @@ fn update(timestep: f64) {
                                         if let CellParticle::Full(second_particle_id) = cp_second_particle_id {
 
                                             
-                                            // console_log!("{:?}, {:?}", p.particles[main_particle_id],p.particles[second_particle_id]);
-                                            // console_log!("{:?}", particles);
+                                            
                                             let dx = p.particles[second_particle_id].position.0-p.particles[main_particle_id].position.0;
                                             let dy = p.particles[second_particle_id].position.1-p.particles[main_particle_id].position.1;
                                             let distance_squared = (dx).powi(2)+(dy).powi(2);
@@ -328,9 +327,14 @@ fn draw() {
         let particle = &p.particles[index];
 
         ctx.begin_path();
+        let color = format!("rgb({},{},{})",particle.color.0,particle.color.1,particle.color.2);
+
+        
+        ctx.set_fill_style(&JsValue::from_str(color.as_str()));
         ctx.ellipse(particle.position.0, particle.position.1, particle.radius, particle.radius, 0., 0., 2.*std::f64::consts::PI);
         // ctx.ellipse(10., 10., 5., 5., 0., 0., 2.*std::f64::consts::PI);
-        ctx.stroke();
+        ctx.close_path();
+        ctx.fill();
 
         if index+1 == next_index {
             v_squared[v_index] = v_squared[v_index] / ( p.types[v_index].0  as f64); //v_squared[v_index]/(p.types[v_index].0 as f64);
@@ -344,7 +348,7 @@ fn draw() {
         v_squared[v_index] += particle.velocity.0.powi(2)+particle.velocity.1.powi(2);
         
     }
-    // console_log!("{:#?}", v_squared);
+    
     
     js_median_velocity_sq(v_squared);
 
