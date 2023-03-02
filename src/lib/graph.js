@@ -1,5 +1,7 @@
 import * as wasm from '../../rust_wasm/mkt-basic/pkg/main';
+import {updateChart} from "@/lib/GasChart";
 
+let counter = 0;
 export function jsMedianVelocitySq  (v) { 
   v[0] = v[0]-16; // почему? самому бы знать
   // console.log(v); 
@@ -7,7 +9,14 @@ export function jsMedianVelocitySq  (v) {
   for (let i = 0; i < v.length; i++) {
     pressure += 1/3 * moleculeTypeArr[i][1] * moleculeTypeArr[i][0] / 400 * v[i]; // 400=Volume
   }
-  console.log(pressure);
+
+  counter++;
+  if(counter%300===0) {
+    console.log((counter/300)*3, pressure)
+    updateChart([[(counter/300)*3], [pressure]]);
+  }
+
+
 }
 
 export function jsPathPointAndDraw (x,y, ctx) {
