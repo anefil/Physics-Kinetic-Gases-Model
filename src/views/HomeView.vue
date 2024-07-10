@@ -1,15 +1,13 @@
-<!-- This is the main page -->
-<!-- Maybe here will be theory like in https://windpl.github.io/physics-STO/dist/index.html -->
-
 <script setup>
-import TestComponent from '../components/TestComponent.vue'
-import BigHeaderComponent from "@/components/BigHeaderComponent.vue";
 </script>
 
 <template>
-  <BigHeaderComponent />
   <main>
-    Это главная страница
+  <h1>Симуляція молекулярно-кінетичної теорії ідеального газу</h1>
+  <video height="300" autoplay muted loop>
+    <source src="../assets/res/balls.mp4" type="">
+  </video>
   </main>
-  <TestComponent />
 </template>
+
+<style scoped src="../assets/style/home.css"></style>

@@ -1,10 +1,3 @@
-//
-// TODO
-// --- clean Empty
-// include radius
-//
-
-
 mod utils;
 
 use std::{sync::Mutex, f64::consts::PI};
@@ -23,7 +16,7 @@ extern "C" {
     fn log(a: &str);
 }
 
-#[wasm_bindgen(raw_module = "../../../src/lib/graph.js")]
+#[wasm_bindgen(raw_module = "../../../src/lib/graph_helper.js")]
 extern "C" {
     #[wasm_bindgen(js_name="jsMedianVelocitySq")]
     fn js_median_velocity_sq(velocity: Vec<f64>);

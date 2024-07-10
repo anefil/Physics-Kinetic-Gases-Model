@@ -109,7 +109,7 @@ div.mathblock.mathblock-accent {
 .highlight {
   border-bottom: 3px solid var(--accent-primary);
 }
-
+/* 
 button, a {
   background-color: var(--accent-primary);
   color: white;
@@ -119,4 +119,4 @@ button, a {
   font-size: 1.5rem;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
-}
+} */

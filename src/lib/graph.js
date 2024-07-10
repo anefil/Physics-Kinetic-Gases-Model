@@ -11,10 +11,7 @@ export function jsMedianVelocitySq  (v) {
   }
 
   counter++;
-  if(counter%1===0) {
-    console.log((counter/5)*3, pressure)
-    updateChart([[(counter/100)*3], [pressure]]);
-  }
+  updateChart([[(counter/100)*3], [pressure]]);
 
 
 }
@@ -37,24 +34,18 @@ export async function addMoleculeType(num, v_avg, mass, color) {
 
 let moleculeTypeArr = [];
 let points = [];
-// let ctx;
 
-let start;
-let i = 0;
 let TIMESTEP, SUBITERATIONS;
 
 export async function render() {    
   await wasm.rs_next_step(SUBITERATIONS, TIMESTEP);
-  i++;
-  if(i===600)
-    console.log("Dif time: "+(performance.now()-start)/1000);
   requestAnimationFrame(render);
 }
 
 export async function init(timestep, subiterations) {
   await wasm.init();
   TIMESTEP = timestep; SUBITERATIONS = subiterations;
-  start = performance.now();
+
 }
 
 export async function watchParticle(idx) {
